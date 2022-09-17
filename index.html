@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:300,400,600,700,900&display=swap" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=default"></script>
+    <title>Stable Matching Solution Visualized</title>
+</head>
+
+<body onload="document.body.style.opacity='1'">
+    <div id="main">
+        <div id="problem-text">
+            <h1>The Problem</h1></div>
+        <div>
+            <h2>Perfect Matching:</h2>
+            <div>A perfect matching is a matching of men and women in which everyone is matched monogamously. Each man gets exactly one woman, and each woman gets exactly one man.</div>
+
+            <h2>Unstable Pairs:</h2>
+            <div>In a matching A, an unmatched pair M-W is unstable if man M and woman W prefer each other to their current partners. <br> For example, consider the following matching with the pairs MAN1-WOMAN1 and MAN2-WOMAN2:</div>
+            <div id="explanation"></div>
+            <!-- svg appended in explanation.js -->
+
+            <div>The green lines above represent the current pairs in the matching A.
+                <br> Suppose:
+                <br> 1) MAN1 prefers WOMAN2 over WOMAN1 and
+                <br> 2) WOMAN2 prefers MAN1 over MAN2
+                <br> Then, the pair MAN1-WOMAN2 (represented by the red line above) is an unstable pair because both MAN1 and WOMAN2 prefer each other over their current partners.</div>
+
+            <h2>Identify Unstable Pairs:</h2>
+            <div id="identify"></div>
+            <div>Does the above matching contain any unstable pairs?</div>
+            <button type="button" id="yes-button">Yes</button>
+            <button type="button" id="no-button">No</button>
+            <br> <button type="button" id="new-button">New Problem</button>
+            <label for="pairs3">Number of Pairs:</label>
+            <select id="pairs3">
+                <option value="2">2</option>
+                <option value="3" selected="">3</option>
+                <option value="4">4</option>
+                <!--<option value="5">5</option>-->
+            </select>
+
+			<br><span id="pairswarning1" style="color:red; display:none;">Warning! Selecting 5 pairs can cause display issues. It's just there for fun.</span>
+            <!-- svg appended in identify.js -->
+
+            <h2>Stable Matching:</h2>
+            <div>A perfect matching with no unstable pairs is called a stable matching.</div>
+
+            <h2>Stable Matching Problem:</h2>
+            <div>Given the preference lists of n men and n women, find a stable matching if one exists.
+            </div>
+
+        </div>
+        <h1>The Solution</h1>
+        <h2>Algorithm:</h2>
+        <div>In 1962, <b>David Gale</b> and <b>Lloyd Shapley</b> proved that, for any equal number of men and women, it is always possible to make all marriages stable.
+            <br>
+            <br> The <b>Gale–Shapley algorithm</b> involves a number of <i>"rounds"</i>:
+            <ul type="square">
+                <li>In the first round, first
+                    <ul type="circle">
+                        <li>Each unengaged man proposes to the woman he prefers most, and then </li>
+                        <li>Each woman replies <i>"maybe"</i> to her suitor she most prefers and <i>"no"</i> to all other suitors.</li>
+                    </ul>
+                    She is then provisionally <i>"engaged"</i> to the suitor she most prefers so far, and that suitor is likewise provisionally engaged to her.
+                </li>
+                <li>In each subsequent round, first
+                    <ul>
+                        <li>Each unengaged man proposes to the most-preferred woman to whom he has not yet proposed (regardless of whether the woman is already engaged), and then</li>
+                        <li>Each woman replies <i>"maybe"</i> if she is currently not engaged or if she prefers this man over her current provisional partner (in this case, her current provisional partner becomes unengaged).</li>
+                    </ul>
+                    This allows every already-engaged woman to <i>"trade up"</i> (and reject her until-then partner)
+                </li>
+                <li>This process is repeated until everyone is engaged.</li>
+            </ul>
+            This algorithm is guaranteed to produce a stable marriage for all participants in time \(O(n^2)\) where \(n\) is the number of men or women.
+
+            <br> Among all possible different stable matchings, it always yields the one that is best for all men among all stable matchings, and worst for all women. No man can get a better matching for himself by misrepresenting his preferences.
+			However, each woman may be able to misrepresent her preferences and get a better match.
+        </div>
+        <h2>Algorithm Pseudocode</h2>
+        <div id="solution-pseudocode">
+            <pre>algorithm <b>stable_matching</b>:
+		Initialize all <i>men</i> and <i>women</i> to <i>free</i> (unengaged)
+		<b>while</b> there exists a <i>free</i> man <i>m</i> who still has a woman <i>w</i> to propose to:
+			<b>set</b> w <b>to</b> first woman on m's list to whom m has not yet proposed
+			<b>if</b> w is <i>free</i>:
+				(m, w) become <i>engaged</i>
+			<b>else</b>:
+				let m' be w's current fiance
+				<b>if</b> w prefers m to m':
+					m' becomes <i>free</i>
+					(m, w) become <i>engaged</i>
+				<b>else</b>:
+					(m', w) remain <i>engaged</i></pre>
+        </div>
+        <div>Click next step to walk through the solution. Click circles to edit their preference lists.</div>
+        <div id="solution"></div>
+        <button type="button" id="play-button">Play Algorithm</button>
+        <button type="button" id="solution-next">Next Step</button>
+        <button type="button" id="solution-reset">Reset</button>
+        <button type="button" id="shuffle-prefs">Shuffle Preferences</button>
+		<!-- <span>Play Speed:</span>
+		 <input type="range" min="1" max="150" value="50" class="slider" id="speed-slider"> -->
+		<br> <button type="button" id="new-solution">New Problem</button>
+        <label for="pairs1">Number of Pairs:</label>
+        <select id="pairs1">
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4" selected="">4</option>
+            <!--<option value="5">5</option>-->
+        </select>
+
+		<br><span id="pairswarning2" style="color:red; display:none;">Warning! Selecting 5 pairs can cause display issues. It's just there for fun.</span>
+
+        <h2>Try It Yourself</h2>
+		<div>Pair up men and women by clicking on them. Check your work when you're finished!</div>
+        <div id="user-interact"></div>
+        <button type="button" id="check-work">Check My Work</button>
+        <button type="button" id="try-reset">Reset</button>
+		<br> <button type="button" id="try-new">New Problem</button>
+		<label for="pairs2">Number of Pairs:</label>
+        <select id="pairs2">
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4" selected="">4</option>
+            <!--<option value="5">5</option>-->
+        </select>
+
+		<br><span id="pairswarning3" style="color:red; display:none;">Warning! Selecting 5 pairs can cause display issues. It's just there for fun.</span>
+
+        <script src="explanation.js"></script>
+        <script src="identify.js"></script>
+        <script src="main.js"></script>
+        <script src="interact.js"></script>
+</div></body>
+
+</html>
